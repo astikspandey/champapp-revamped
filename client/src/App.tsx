@@ -4,6 +4,11 @@ import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import MyClasses from "@/pages/MyClasses";
 import ClassView from "@/pages/ClassView";
+import Assignments from "@/pages/Assignments";
+import Announcements from "@/pages/Announcements";
+import Newsletter from "@/pages/Newsletter";
+import NoticeBoard from "@/pages/NoticeBoard";
+import Messages from "@/pages/Messages";
 import { Layout } from "@/components/Layout";
 import { Toaster } from "@/components/ui/toaster";
 import { Role } from "@/lib/mockData";
@@ -40,6 +45,21 @@ function App() {
                 </Route>
                 <Route path="/my-classes">
                   <MyClasses role={role} />
+                </Route>
+                <Route path="/assignments">
+                  <Assignments role={role} />
+                </Route>
+                <Route path="/announcements">
+                  <Announcements role={role} />
+                </Route>
+                <Route path="/newsletter">
+                  <Newsletter role={role} />
+                </Route>
+                <Route path="/notices">
+                  <NoticeBoard role={role} />
+                </Route>
+                <Route path="/messages">
+                  <Messages role={role} />
                 </Route>
                 <Route path="/class/:id">
                   <ClassView role={role} />

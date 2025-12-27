@@ -1,0 +1,26 @@
+{
+  "users": {
+    "student": {
+      "id": "s1",
+      "name": "Student User",
+      "role": "student",
+      "avatar": "",
+      "email": "student@school.edu"
+    },
+    "teacher": {
+      "id": "t1",
+      "name": "Teacher User",
+      "role": "teacher",
+      "avatar": "",
+      "email": "teacher@school.edu"
+    }
+  },
+  "classes": [],
+  "assignments": [],
+  "announcements": [],
+  "newsletters": [],
+  "notices": [],
+  "tasks": [],
+  "submissions": [],
+  "messages": []
+}
