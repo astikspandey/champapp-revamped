@@ -1,29 +1,58 @@
-import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { Switch, Route, useLocation } from "wouter";
+import { useState } from "react";
+import Landing from "@/pages/Landing";
+import Dashboard from "@/pages/Dashboard";
+import ClassView from "@/pages/ClassView";
+import { Layout } from "@/components/Layout";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Role } from "@/lib/mockData";
 import NotFound from "@/pages/not-found";
 
-function Router() {
-  return (
-    <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
-
 function App() {
+  const [role, setRole] = useState<Role | null>(null);
+  const [location, setLocation] = useLocation();
+
+  const handleLogin = (selectedRole: Role) => {
+    setRole(selectedRole);
+    setLocation("/dashboard");
+  };
+
+  const handleLogout = () => {
+    setRole(null);
+    setLocation("/");
+  };
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+    <>
+        <Switch>
+            <Route path="/">
+                <Landing onLogin={handleLogin} />
+            </Route>
+            
+            {/* Protected Routes */}
+            {role ? (
+                <Route path="/:rest*">
+                    <Layout userRole={role} onLogout={handleLogout}>
+                        <Switch>
+                            <Route path="/dashboard">
+                                <Dashboard role={role} />
+                            </Route>
+                            <Route path="/class/:id">
+                                <ClassView role={role} />
+                            </Route>
+                             <Route component={NotFound} />
+                        </Switch>
+                    </Layout>
+                </Route>
+            ) : (
+                 <Route>
+                    {/* Redirect unauthenticated users back to landing if they try to access other routes */}
+                    <Landing onLogin={handleLogin} />
+                 </Route>
+            )}
+        </Switch>
         <Toaster />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
+    </>
   );
 }
 
