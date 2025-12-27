@@ -19,6 +19,16 @@ export function Layout({ children, userRole, onLogout }: LayoutProps) {
   const user = USERS[userRole];
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  const getActiveNavItem = () => {
+    for (const item of NAV_ITEMS) {
+      if (location === item.href) return item.label;
+      if (location.startsWith(item.href) && item.href !== "/dashboard") return item.label;
+    }
+    if (location.startsWith("/class/")) return "My Classes";
+    if (location === "/") return "Dashboard";
+    return "Dashboard";
+  };
+
   const NavContent = () => (
     <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="p-6 flex items-center gap-3">
@@ -40,6 +50,7 @@ export function Layout({ children, userRole, onLogout }: LayoutProps) {
                     ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}
+                onClick={() => setIsMobileOpen(false)}
               >
                 <item.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-muted-foreground group-hover:text-primary")} />
                 {item.label}
@@ -78,41 +89,41 @@ export function Layout({ children, userRole, onLogout }: LayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:ml-64 min-w-0">
         <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between px-4 md:px-8">
-            <div className="flex items-center gap-4">
-                 <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-                    <SheetTrigger asChild>
-                        <Button variant="ghost" size="icon" className="md:hidden">
-                            <Menu className="w-5 h-5" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-64">
-                        <NavContent />
-                    </SheetContent>
-                 </Sheet>
-                 <h1 className="font-semibold text-lg hidden md:block">
-                     {NAV_ITEMS.find(i => location.startsWith(i.href))?.label || "Dashboard"}
-                 </h1>
-            </div>
-
-            <div className="flex items-center gap-3">
-                <div className="relative hidden md:block w-64">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <input 
-                        className="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        placeholder="Search for classes, assignments..."
-                    />
-                </div>
-                <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="w-5 h-5 text-muted-foreground" />
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-background"></span>
+          <div className="flex items-center gap-4">
+            <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="w-5 h-5" />
                 </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-64">
+                <NavContent />
+              </SheetContent>
+            </Sheet>
+            <h1 className="font-semibold text-lg hidden md:block">
+              {getActiveNavItem()}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative hidden md:block w-64">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <input
+                className="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                placeholder="Search classes, assignments..."
+              />
             </div>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="w-5 h-5 text-muted-foreground" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-background"></span>
+            </Button>
+          </div>
         </header>
-        
+
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-            <div className="max-w-6xl mx-auto space-y-8">
-                {children}
-            </div>
+          <div className="max-w-6xl mx-auto space-y-8">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { useState } from "react";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
+import MyClasses from "@/pages/MyClasses";
 import ClassView from "@/pages/ClassView";
 import { Layout } from "@/components/Layout";
 import { Toaster } from "@/components/ui/toaster";
@@ -24,34 +25,36 @@ function App() {
 
   return (
     <>
-        <Switch>
-            <Route path="/">
-                <Landing onLogin={handleLogin} />
-            </Route>
-            
-            {/* Protected Routes */}
-            {role ? (
-                <Route path="/:rest*">
-                    <Layout userRole={role} onLogout={handleLogout}>
-                        <Switch>
-                            <Route path="/dashboard">
-                                <Dashboard role={role} />
-                            </Route>
-                            <Route path="/class/:id">
-                                <ClassView role={role} />
-                            </Route>
-                             <Route component={NotFound} />
-                        </Switch>
-                    </Layout>
+      <Switch>
+        <Route path="/">
+          <Landing onLogin={handleLogin} />
+        </Route>
+
+        {/* Protected Routes */}
+        {role ? (
+          <Route path="/:rest*">
+            <Layout userRole={role} onLogout={handleLogout}>
+              <Switch>
+                <Route path="/dashboard">
+                  <Dashboard role={role} />
                 </Route>
-            ) : (
-                 <Route>
-                    {/* Redirect unauthenticated users back to landing if they try to access other routes */}
-                    <Landing onLogin={handleLogin} />
-                 </Route>
-            )}
-        </Switch>
-        <Toaster />
+                <Route path="/my-classes">
+                  <MyClasses role={role} />
+                </Route>
+                <Route path="/class/:id">
+                  <ClassView role={role} />
+                </Route>
+                <Route component={NotFound} />
+              </Switch>
+            </Layout>
+          </Route>
+        ) : (
+          <Route>
+            <Landing onLogin={handleLogin} />
+          </Route>
+        )}
+      </Switch>
+      <Toaster />
     </>
   );
 }
