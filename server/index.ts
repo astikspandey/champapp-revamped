@@ -76,13 +76,19 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
+    let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+
     if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       log(logLine);
+    } else if (!path.match(/\.(js|css|png|jpg|jpeg|svg|ico|woff|woff2|map)$/)) {
+      // Log HTML/route requests, but not static assets (unless there's an error)
+      log(logLine);
+    } else if (res.statusCode >= 400) {
+      // Always log errors for static files
+      log(`❌ ${logLine}`);
     }
   });
 

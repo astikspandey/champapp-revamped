@@ -8,6 +8,7 @@ import { copy } from 'esbuild-plugin-copy';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,13 +99,32 @@ export const buildOptions = {
   jsxDev: isDev,
 };
 
+async function buildCSS() {
+  console.log('🎨 Processing CSS with Tailwind...');
+  try {
+    const rootDir = process.cwd();
+    const tailwindBin = path.resolve(rootDir, 'node_modules/.bin/tailwindcss');
+    const inputPath = path.resolve(rootDir, 'client/src/index.css');
+    const outputPath = path.resolve(rootDir, 'dist/public/main.css');
+    const configPath = path.resolve(rootDir, 'tailwind.config.js');
+
+    const cmd = `"${tailwindBin}" -c "${configPath}" -i "${inputPath}" -o "${outputPath}" ${isDev ? '' : '--minify'}`;
+    console.log('Running:', cmd);
+    execSync(cmd, { stdio: 'inherit', shell: true });
+    console.log('✅ CSS processed!');
+  } catch (error) {
+    console.error('❌ CSS processing failed:', error);
+    throw error;
+  }
+}
+
 export async function build() {
-  console.log('🔨 Building client with esbuild...');
+  console.log('🔨 Building JS with esbuild...');
   console.log(`   Mode: ${isDev ? 'development' : 'production'}`);
 
   try {
     const result = await esbuild.build(buildOptions);
-    console.log('✅ Client build complete!');
+    console.log('✅ Client JS build complete!');
     return result;
   } catch (error) {
     console.error('❌ Build failed:', error);
@@ -113,20 +133,32 @@ export async function build() {
 }
 
 export async function watch() {
-  console.log('🔨 Building client with esbuild...');
+  console.log('🔨 Building JS with esbuild...');
   console.log(`   Mode: ${isDev ? 'development' : 'production'}`);
 
   const context = await esbuild.context(buildOptions);
 
-  // Do initial build
+  // Do initial JS build
   await context.rebuild();
-  console.log('✅ Initial build complete!');
+  console.log('✅ Initial JS build complete!');
 
-  // Watch for changes
+  // Watch for JS changes with esbuild
   await context.watch();
+
+  // Watch for CSS changes with Tailwind
+  const rootDir = process.cwd();
+  const tailwindBin = path.resolve(rootDir, 'node_modules/.bin/tailwindcss');
+  const inputPath = path.resolve(rootDir, 'client/src/index.css');
+  const outputPath = path.resolve(rootDir, 'dist/public/main.css');
+  const configPath = path.resolve(rootDir, 'tailwind.config.js');
+  const cssWatchCmd = `"${tailwindBin}" -c "${configPath}" -i "${inputPath}" -o "${outputPath}" --watch`;
+
+  const { spawn } = await import('child_process');
+  const cssWatch = spawn(cssWatchCmd, { shell: true, stdio: 'inherit' });
+
   console.log('👀 Watching for changes...');
 
-  return context;
+  return { context, cssWatch };
 }
 
 // CLI usage
