@@ -75,7 +75,10 @@
     "wouter": "^3.3.5",
     "ws": "^8.18.0",
     "zod": "^3.25.76",
-    "zod-validation-error": "^3.4.0"
+    "zod-validation-error": "^3.4.0",
+    "esbuild": "^0.25.0",
+    "esbuild-plugin-copy": "^2.1.1",
+    "chokidar": "^5.0.0"
   },
   "devDependencies": {
     "@types/connect-pg-simple": "^7.0.3",
@@ -88,10 +91,7 @@
     "@types/react-dom": "^19.2.0",
     "@types/ws": "^8.5.13",
     "autoprefixer": "^10.4.21",
-    "chokidar": "^5.0.0",
     "drizzle-kit": "^0.31.4",
-    "esbuild": "^0.25.0",
-    "esbuild-plugin-copy": "^2.1.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.20.5",
