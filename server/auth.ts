@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as cryptoCompat from './crypto-compat';
 
 interface WalkerAuthUserData {
   postid: string;
@@ -23,13 +23,13 @@ export function decryptWalkerAuthData(
     const algorithm = 'aes-256-cbc';
 
     // Hash the secret key to get 32 bytes for AES-256
-    const key = crypto.createHash('sha256').update(secretKey).digest();
+    const key = cryptoCompat.createHash('sha256', secretKey);
 
     // Convert IV from hex to buffer
     const ivBuffer = Buffer.from(iv, 'hex');
 
     // Create decipher
-    const decipher = crypto.createDecipheriv(algorithm, key, ivBuffer);
+    const decipher = cryptoCompat.createDecipheriv(algorithm, key, ivBuffer);
 
     // Decrypt the data
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -47,5 +47,5 @@ export function decryptWalkerAuthData(
  * Generates a random token for session management
  */
 export function generateToken(): string {
-  return crypto.randomBytes(32).toString('hex');
+  return cryptoCompat.generateToken();
 }
