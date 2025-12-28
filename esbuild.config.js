@@ -113,12 +113,18 @@ export async function build() {
 }
 
 export async function watch() {
-  console.log('👀 Watching for changes...');
+  console.log('🔨 Building client with esbuild...');
+  console.log(`   Mode: ${isDev ? 'development' : 'production'}`);
 
   const context = await esbuild.context(buildOptions);
 
+  // Do initial build
+  await context.rebuild();
+  console.log('✅ Initial build complete!');
+
+  // Watch for changes
   await context.watch();
-  console.log('✅ Watching client files for changes');
+  console.log('👀 Watching for changes...');
 
   return context;
 }
