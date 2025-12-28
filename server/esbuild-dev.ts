@@ -4,6 +4,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import { watch } from "../esbuild.config.js";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,12 +16,26 @@ export async function setupEsbuildDev(server: Server, app: Express) {
   await watch();
 
   // Serve static files from dist/public
-  const distPath = path.resolve(__dirname, "..", "dist", "public");
+  // Use process.cwd() to get the project root reliably
+  const distPath = path.join(process.cwd(), "dist", "public");
+
+  console.log('📁 Serving static files from:', distPath);
+
+  // Check if directory exists
+  if (!fs.existsSync(distPath)) {
+    console.error('❌ dist/public directory not found at:', distPath);
+    throw new Error(`Build directory not found: ${distPath}`);
+  }
+
+  // Log what files are available
+  const files = fs.readdirSync(distPath);
+  console.log('📄 Available files:', files.join(', '));
+
   app.use(express.static(distPath));
 
   // Fallback to index.html for client-side routing
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    res.sendFile(path.join(distPath, "index.html"));
   });
 
   console.log('✅ esbuild dev server ready');

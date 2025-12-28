@@ -45,7 +45,7 @@ export async function checkAndInstallDependencies() {
       "express",
       "express-session",
       "react",
-      "vite",
+      "esbuild",
     ];
 
     const missingDeps = essentialDeps.filter(
