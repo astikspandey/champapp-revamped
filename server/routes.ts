@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { decryptWalkerAuthData, generateToken } from "./auth";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +35,93 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+
+  // ===== AUTHENTICATION ROUTES =====
+
+  // OAuth callback from WalkerAuth
+  app.post("/oauth/callback", async (req, res) => {
+    try {
+      const { encrypted, iv, siteId } = req.body;
+
+      if (!encrypted || !iv) {
+        return res.status(400).json({ success: false, error: "Missing required fields" });
+      }
+
+      const secretKey = process.env.WALKERAUTH_SECRET_KEY;
+      if (!secretKey) {
+        console.error("WALKERAUTH_SECRET_KEY not set in environment");
+        return res.status(500).json({ success: false, error: "Server configuration error" });
+      }
+
+      // Decrypt user data
+      const userData = decryptWalkerAuthData(encrypted, iv, secretKey);
+
+      // Generate session token
+      const token = generateToken();
+
+      // Store user data in session
+      req.session.userId = userData.postid;
+      req.session.email = userData.email;
+      req.session.username = userData.username;
+      req.session.profilePictureUrl = userData.profilePictureUrl;
+
+      // For now, default to student role - can be enhanced later
+      req.session.role = "student";
+
+      // Save session and return token
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+
+      res.json({ success: true, token });
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      res.status(500).json({ success: false, error: "Authentication failed" });
+    }
+  });
+
+  // Auth success endpoint - redirects to app with session
+  app.get("/auth/success", async (req, res) => {
+    const { token } = req.query;
+
+    if (!token || !req.session.userId) {
+      return res.redirect("/login?error=authentication_failed");
+    }
+
+    // Token verified, session is set, redirect to dashboard
+    res.redirect("/dashboard");
+  });
+
+  // Check auth status
+  app.get("/api/auth/status", (req, res) => {
+    if (req.session.userId) {
+      res.json({
+        authenticated: true,
+        user: {
+          id: req.session.userId,
+          email: req.session.email,
+          username: req.session.username,
+          profilePictureUrl: req.session.profilePictureUrl,
+          role: req.session.role,
+        },
+      });
+    } else {
+      res.json({ authenticated: false });
+    }
+  });
+
+  // Logout
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Failed to logout" });
+      }
+      res.json({ success: true });
+    });
+  });
 
   // Get all data
   app.get("/api/data", async (req, res) => {

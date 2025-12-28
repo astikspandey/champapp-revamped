@@ -1,7 +1,9 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { checkAndInstallDependencies } from "./check-deps";
 
 const app = express();
 const httpServer = createServer(app);
@@ -11,6 +13,30 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
+declare module "express-session" {
+  interface SessionData {
+    userId?: string;
+    email?: string;
+    username?: string;
+    profilePictureUrl?: string;
+    role?: "student" | "teacher";
+  }
+}
+
+// Session middleware - must be before routes
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "champapp-session-secret-change-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    },
+  })
+);
 
 app.use(
   express.json({
@@ -60,6 +86,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Check and install dependencies if needed
+  await checkAndInstallDependencies();
+
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

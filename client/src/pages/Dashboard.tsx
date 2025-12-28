@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { USERS, Role } from "@/lib/mockData";
+import { Role } from "@/lib/mockData";
 import { assignmentsApi, announcementsApi, tasksApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,13 +7,15 @@ import { Separator } from "@/components/ui/separator";
 import { FileText, Megaphone, CheckCircle2, MessageSquare, Users as UsersIcon, BookOpen, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import TaskList from "@/components/TaskList";
+import { useAuth } from "@/lib/auth";
 
 interface DashboardProps {
   role: Role;
+  userId: string;
 }
 
-export default function Dashboard({ role }: DashboardProps) {
-  const user = USERS[role];
+export default function Dashboard({ role, userId }: DashboardProps) {
+  const { user } = useAuth();
   const [assignments, setAssignments] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +66,7 @@ export default function Dashboard({ role }: DashboardProps) {
       {/* Header */}
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">
-          {greeting()}, {user.name.split(' ')[0]}!
+          {greeting()}, {user?.username || 'User'}!
         </h1>
         <p className="text-muted-foreground">
           {role === 'student'
@@ -224,7 +226,7 @@ export default function Dashboard({ role }: DashboardProps) {
 
         {/* Right: Task List */}
         <div className="space-y-6">
-          <TaskList userId={user.id} />
+          <TaskList userId={userId} />
 
           {/* Quick Actions for Teachers */}
           {role === 'teacher' && (

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { NAV_ITEMS, USERS, Role } from "@/lib/mockData";
+import { NAV_ITEMS, Role } from "@/lib/mockData";
 import { Bell, Search, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -11,12 +11,13 @@ import logo from "@assets/generated_images/modern_minimal_education_logo_geometr
 interface LayoutProps {
   children: React.ReactNode;
   userRole: Role;
+  userName: string;
+  userAvatar: string;
   onLogout: () => void;
 }
 
-export function Layout({ children, userRole, onLogout }: LayoutProps) {
+export function Layout({ children, userRole, userName, userAvatar, onLogout }: LayoutProps) {
   const [location] = useLocation();
-  const user = USERS[userRole];
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const getActiveNavItem = () => {
@@ -63,12 +64,12 @@ export function Layout({ children, userRole, onLogout }: LayoutProps) {
       <div className="p-4 border-t border-sidebar-border">
         <div className="flex items-center gap-3 mb-4">
           <Avatar className="h-9 w-9 border border-border">
-            <AvatarImage src={user.avatar} />
-            <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
+            <AvatarImage src={userAvatar} />
+            <AvatarFallback>{userName.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user.name}</p>
-            <p className="text-xs text-muted-foreground truncate capitalize">{user.role}</p>
+            <p className="text-sm font-medium truncate">{userName}</p>
+            <p className="text-xs text-muted-foreground truncate capitalize">{userRole}</p>
           </div>
         </div>
         <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={onLogout}>

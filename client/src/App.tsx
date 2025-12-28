@@ -1,6 +1,6 @@
-import { Switch, Route, useLocation } from "wouter";
-import { useState } from "react";
-import Landing from "@/pages/Landing";
+import { Switch, Route, useLocation, Redirect } from "wouter";
+import { useEffect } from "react";
+import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import MyClasses from "@/pages/MyClasses";
 import ClassView from "@/pages/ClassView";
@@ -11,58 +11,71 @@ import NoticeBoard from "@/pages/NoticeBoard";
 import Messages from "@/pages/Messages";
 import { Layout } from "@/components/Layout";
 import { Toaster } from "@/components/ui/toaster";
-import { Role } from "@/lib/mockData";
+import { useAuth } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 
 function App() {
-  const [role, setRole] = useState<Role | null>(null);
+  const { authenticated, user, loading, logout } = useAuth();
   const [location, setLocation] = useLocation();
 
-  const handleLogin = (selectedRole: Role) => {
-    setRole(selectedRole);
-    setLocation("/dashboard");
-  };
+  useEffect(() => {
+    // Redirect to login if not authenticated and not on login page
+    if (!loading && !authenticated && location !== "/login") {
+      setLocation("/login");
+    }
+    // Redirect to dashboard if authenticated and on login page
+    if (!loading && authenticated && location === "/login") {
+      setLocation("/dashboard");
+    }
+  }, [authenticated, loading, location, setLocation]);
 
-  const handleLogout = () => {
-    setRole(null);
-    setLocation("/");
-  };
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <>
       <Switch>
-        <Route path="/">
-          <Landing onLogin={handleLogin} />
+        <Route path="/login">
+          <Login />
         </Route>
 
         {/* Protected Routes */}
-        {role ? (
+        {authenticated && user ? (
           <Route path="/:rest*">
-            <Layout userRole={role} onLogout={handleLogout}>
+            <Layout userRole={user.role} userName={user.username} userAvatar={user.profilePictureUrl} onLogout={logout}>
               <Switch>
+                <Route path="/">
+                  <Redirect to="/dashboard" />
+                </Route>
                 <Route path="/dashboard">
-                  <Dashboard role={role} />
+                  <Dashboard role={user.role} userId={user.id} />
                 </Route>
                 <Route path="/my-classes">
-                  <MyClasses role={role} />
+                  <MyClasses role={user.role} />
                 </Route>
                 <Route path="/assignments">
-                  <Assignments role={role} />
+                  <Assignments role={user.role} />
                 </Route>
                 <Route path="/announcements">
-                  <Announcements role={role} />
+                  <Announcements role={user.role} />
                 </Route>
                 <Route path="/newsletter">
-                  <Newsletter role={role} />
+                  <Newsletter role={user.role} />
                 </Route>
                 <Route path="/notices">
-                  <NoticeBoard role={role} />
+                  <NoticeBoard role={user.role} />
                 </Route>
                 <Route path="/messages">
-                  <Messages role={role} />
+                  <Messages role={user.role} />
                 </Route>
                 <Route path="/class/:id">
-                  <ClassView role={role} />
+                  <ClassView role={user.role} />
                 </Route>
                 <Route component={NotFound} />
               </Switch>
@@ -70,7 +83,7 @@ function App() {
           </Route>
         ) : (
           <Route>
-            <Landing onLogin={handleLogin} />
+            <Redirect to="/login" />
           </Route>
         )}
       </Switch>
