@@ -4,6 +4,10 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { checkAndInstallDependencies } from "./check-deps";
+import { logPlatformInfo } from "./platform-detector";
+
+// Display platform information on startup
+logPlatformInfo();
 
 const app = express();
 const httpServer = createServer(app);

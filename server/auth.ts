@@ -1,4 +1,14 @@
-import * as cryptoCompat from './crypto-compat';
+import { detectPlatform } from './platform-detector';
+import * as cryptoLinux from './platforms/linux/crypto.js';
+import * as cryptoMacos from './platforms/macos/crypto.js';
+import * as cryptoWindows from './platforms/windows/crypto.js';
+
+// Select platform-specific crypto module
+const platform = detectPlatform();
+const cryptoCompat = platform === 'linux' ? cryptoLinux
+                   : platform === 'macos' ? cryptoMacos
+                   : platform === 'windows' ? cryptoWindows
+                   : cryptoMacos; // fallback
 
 interface WalkerAuthUserData {
   postid: string;

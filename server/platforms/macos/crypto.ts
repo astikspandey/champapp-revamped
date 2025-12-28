@@ -1,0 +1,66 @@
+/**
+ * macOS-specific crypto implementation
+ * Optimized for macOS systems
+ */
+
+import crypto from 'crypto';
+
+console.log('🍎 Loading macOS crypto module...');
+
+/**
+ * Create a hash (macOS-optimized)
+ */
+export function createHash(algorithm: string, data: string | Buffer): Buffer {
+  try {
+    return crypto.createHash(algorithm).update(data).digest();
+  } catch (error) {
+    console.error(`❌ [macOS] Failed to create ${algorithm} hash:`, error);
+    throw new Error(`Hashing failed on macOS: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Generate random bytes (macOS-optimized)
+ */
+export function randomBytes(size: number): Buffer {
+  try {
+    // macOS uses Secure Random internally
+    return crypto.randomBytes(size);
+  } catch (error) {
+    console.error(`❌ [macOS] Failed to generate random bytes:`, error);
+    throw new Error(`Random generation failed on macOS: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Create cipher (macOS-optimized)
+ */
+export function createCipheriv(algorithm: string, key: Buffer, iv: Buffer): crypto.Cipher {
+  try {
+    return crypto.createCipheriv(algorithm, key, iv);
+  } catch (error) {
+    console.error(`❌ [macOS] Cipher creation failed:`, error);
+    throw new Error(`Cipher creation failed on macOS: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Create decipher (macOS-optimized)
+ */
+export function createDecipheriv(algorithm: string, key: Buffer, iv: Buffer): crypto.Decipher {
+  try {
+    return crypto.createDecipheriv(algorithm, key, iv);
+  } catch (error) {
+    console.error(`❌ [macOS] Decipher creation failed:`, error);
+    throw new Error(`Decipher creation failed on macOS: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Generate a random hex token
+ */
+export function generateToken(bytes: number = 32): string {
+  return randomBytes(bytes).toString('hex');
+}
+
+console.log('✓ macOS crypto module loaded successfully');
