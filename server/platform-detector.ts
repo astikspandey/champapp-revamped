@@ -4,11 +4,7 @@
  */
 
 import os from 'os';
-import { fileURLToPath } from 'url';
 import path from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export type Platform = 'windows' | 'macos' | 'linux' | 'unknown';
 
@@ -35,7 +31,7 @@ export function detectPlatform(): Platform {
  */
 export function getPlatformPath(module: string): string {
   const platform = detectPlatform();
-  return path.join(__dirname, 'platforms', platform, module);
+  return path.join(process.cwd(), 'server', 'platforms', platform, module);
 }
 
 /**
@@ -84,7 +80,7 @@ export async function loadPlatformModule<T>(moduleName: string): Promise<T> {
 
     // Fallback to generic module
     try {
-      const genericPath = path.join(__dirname, moduleName);
+      const genericPath = path.join(process.cwd(), 'server', moduleName);
       const module = await import(genericPath);
       console.log(`✓ Loaded generic ${moduleName}`);
       return module.default || module;

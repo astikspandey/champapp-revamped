@@ -1,17 +1,12 @@
 import { execSync } from "child_process";
 import { existsSync } from "fs";
 import { join } from "path";
-import { fileURLToPath } from "url";
-import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /**
  * Check if dependencies are installed and install them if needed
  */
 export async function checkAndInstallDependencies() {
-  const rootDir = join(__dirname, "..");
+  const rootDir = process.cwd();
   const nodeModulesPath = join(rootDir, "node_modules");
   const packageJsonPath = join(rootDir, "package.json");
 

@@ -3,12 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { promises as fs } from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import { decryptWalkerAuthData, generateToken } from "./auth";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_FILE = path.join(__dirname, "maindata.json");
+const DATA_FILE = path.join(process.cwd(), "maindata.json");
 
 // Helper function to read data
 async function readData() {

@@ -2,12 +2,9 @@ import { type Express } from "express";
 import { type Server } from "http";
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
+// @ts-ignore - esbuild.config.js doesn't have type definitions
 import { watch } from "../esbuild.config.js";
 import fs from "fs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export async function setupEsbuildDev(server: Server, app: Express) {
   console.log('🔨 Starting esbuild in watch mode...');
